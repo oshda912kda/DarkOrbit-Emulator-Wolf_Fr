@@ -684,10 +684,23 @@ namespace Ow.Chat
 
                     if (content.Trim() != "")
                     {
-                        Execute(content);
-
-                        handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
-                        new AsyncCallback(ReadCallback), state);
+                        if (content.StartsWith("<policy-file-request/>"))
+                        {
+                            const string policyPacket = "<?xml version=\"1.0\"?>\r\n" +
+                           "<!DOCTYPE cross-domain-policy SYSTEM \"/xml/dtds/cross-domain-policy.dtd\">\r\n" +
+                           "<cross-domain-policy>\r\n" +
+                           "<allow-access-from domain=\"*\" to-ports=\"*\" />\r\n" +
+                           "</cross-domain-policy>";
+                            
+                            Send(policyPacket + (char)0x00);
+                        }
+                        else
+                        {
+                            Execute(content);
+                            
+                            handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0,
+                            new AsyncCallback(ReadCallback), state);
+                        }
                     }
                 }
                 else
